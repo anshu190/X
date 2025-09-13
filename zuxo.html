@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zuxo - Online Code Editor</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #1d1e22;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: #2a2a2e;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #3f3f3f;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #76daff;
+            margin-right: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 1rem;
+            gap: 1rem;
+            overflow: hidden;
+        }
+
+        /* Editor panels */
+        .editors {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 50%;
+        }
+
+        .editor {
+            background-color: #2a2a2e;
+            border-radius: 4px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .editor-header {
+            background-color: #1d1e22;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #3f3f3f;
+            font-size: 0.9rem;
+            color: #76daff;
+        }
+
+        .editor textarea {
+            width: 100%;
+            height: calc(100% - 35px);
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+        }
+
+        /* Preview panel */
+        .preview {
+            background-color: #fff;
+            border-radius: 4px;
+            width: 50%;
+            overflow: hidden;
+        }
+
+        .preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #2a2a2e;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        footer span {
+            color: #ff6b6b;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .editors, .preview {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        .editor, .preview {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Zuxo</div>
+        <div class="nav-links">
+            <a href="#">Pens</a>
+            <a href="#">Projects</a>
+            <a href="#">Collections</a>
+            <a href="#">About</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="editors">
+            <div class="editor">
+                <div class="editor-header">HTML</div>
+                <textarea id="html-editor"><button class="fancy-btn">Hover me!</button></textarea>
+            </div>
+            <div class="editor">
+                <div class="editor-header">CSS</div>
+                <textarea id="css-editor">.fancy-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.fancy-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}</textarea>
+            </div>
+            <div class="editor">
+                <div class="editor-header">JavaScript</div>
+                <textarea id="js-editor">// Add your JavaScript here
+document.querySelector('.fancy-btn').addEventListener('click', () => {
+    alert('Button clicked!');
+});</textarea>
+            </div>
+        </div>
+        <div class="preview">
+            <iframe id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <footer>
+        Made with <span>❤️</span> by Zuxo
+    </footer>
+
+    <script>
+        // Live preview update functionality
+        const htmlEditor = document.getElementById('html-editor');
+        const cssEditor = document.getElementById('css-editor');
+        const jsEditor = document.getElementById('js-editor');
+        const previewFrame = document.getElementById('preview-frame');
+
+        function updatePreview() {
+            const html = htmlEditor.value;
+            const css = cssEditor.value;
+            const js = jsEditor.value;
+
+            const previewContent = `
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <style>${css}</style>
+                    </head>
+                    <body>
+                        ${html}
+                        <script>${js}\/script>
+                    </body>
+                </html>
+            `;
+
+            const preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            preview.open();
+            preview.write(previewContent);
+            preview.close();
+        }
+
+        // Update preview on input
+        [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+            editor.addEventListener('input', updatePreview);
+        });
+
+        // Initial preview
+        updatePreview();
+
+        // Make panels resizable (basic implementation)
+        let isResizing = false;
+        let currentX;
+        let initialWidth;
+
+        document.addEventListener('mousedown', function(e) {
+            if (e.clientX > window.innerWidth * 0.45 && e.clientX < window.innerWidth * 0.55) {
+                isResizing = true;
+                currentX = e.clientX;
+                initialWidth = document.querySelector('.editors').offsetWidth;
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+
+            const diff = e.clientX - currentX;
+            const newWidth = Math.max(200, Math.min(initialWidth + diff, window.innerWidth - 200));
+            
+            document.querySelector('.editors').style.width = `${newWidth}px`;
+            document.querySelector('.preview').style.width = `${window.innerWidth - newWidth - 32}px`;
+        });
+
+        document.addEventListener('mouseup', function() {
+            isResizing = false;
+        });
+    </script>
+</body>
+</html>
